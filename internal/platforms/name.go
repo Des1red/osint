@@ -4,7 +4,6 @@ import (
 	"osint/internal/logger"
 	"osint/internal/platforms/facebook"
 	"osint/internal/platforms/github"
-	"osint/internal/platforms/gitlab"
 )
 
 type NameCandidate struct {
@@ -76,44 +75,6 @@ func NameLookup(
 						Organization: result.Company,
 
 						Website: result.Blog,
-
-						ProfileURL: result.ProfileURL,
-					},
-				)
-		}
-	}
-
-	//
-	// GitLab.
-	//
-	gitlabResults, err :=
-		gitlab.NameLookup(
-			fullName,
-		)
-
-	if err != nil {
-		logger.LogError(
-			"GitLab name lookup failed for "+fullName,
-			err.Error(),
-		)
-	} else {
-		for _, result := range gitlabResults {
-
-			if !result.Found {
-				continue
-			}
-
-			candidates =
-				append(
-					candidates,
-					NameCandidate{
-						SearchCandidate: fullName,
-
-						Platform: "GitLab",
-
-						Username: result.Username,
-
-						Name: result.Name,
 
 						ProfileURL: result.ProfileURL,
 					},
