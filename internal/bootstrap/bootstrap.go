@@ -62,6 +62,7 @@ func Boot() {
 	}
 	fmt.Println("Verifying dependencies for this run.")
 	verifyDependencies()
+	restoreState()
 
 	fmt.Println()
 	fmt.Println("=============================")
@@ -70,6 +71,17 @@ func Boot() {
 	fmt.Println()
 }
 
+func restoreState() {
+	err := models.ClearChromeProfileLocks()
+	if err != nil {
+		fmt.Errorf(
+			"failed to clear chromium profile locks: %w",
+			err,
+		)
+		os.Exit(0)
+
+	}
+}
 func verifyDependencies() {
 	verify.VerifyKeys()
 
