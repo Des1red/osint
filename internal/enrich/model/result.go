@@ -54,4 +54,9 @@ type EnrichmentResult struct {
 	// investigation graph.
 	//
 	People []PersonReference
+
+	//
+	// Explicit public social-post associations.
+	//
+	SocialCircle SocialCircle
 }

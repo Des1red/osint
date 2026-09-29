@@ -47,6 +47,10 @@ func Print(
 		result.People,
 	)
 
+	printSocialCircle(
+		result,
+	)
+
 	printReferences(
 		result,
 	)
@@ -77,5 +81,6 @@ func hasData(
 		len(result.UnattributedEmployment) > 0 ||
 		len(result.Education) > 0 ||
 		len(result.UnattributedEducation) > 0 ||
-		len(result.People) > 0
+		len(result.People) > 0 ||
+		len(result.SocialCircle.Connections) > 0
 }

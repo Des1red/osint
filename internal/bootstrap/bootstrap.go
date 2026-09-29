@@ -74,7 +74,7 @@ func Boot() {
 func restoreState() {
 	err := models.ClearChromeProfileLocks()
 	if err != nil {
-		fmt.Errorf(
+		fmt.Println(
 			"failed to clear chromium profile locks: %w",
 			err,
 		)

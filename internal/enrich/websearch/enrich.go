@@ -6,6 +6,7 @@ import (
 	"osint/internal/enrich/organize"
 	"osint/internal/enrich/provenance"
 	"osint/internal/enrich/relatives"
+	"osint/internal/enrich/social"
 	"osint/internal/enrich/websearch/discovery"
 	"osint/internal/enrich/websearch/firsthop"
 	"osint/internal/httpx/chrome"
@@ -97,34 +98,11 @@ func Enrich(
 	// Merge those copies before semantic
 	// ownership is resolved.
 	//
-	// This lets one fact carry the complete
-	// evidence set into organize.Organize().
-	//
-	// Example:
-	//
-	//     Person1.
-	//
-	// may have:
-	//
-	//     Discovery evidence with no Subject
-	//
-	// and:
-	//
-	//     FirstHop evidence
-	//     Subject = Person1
-	//
-	// Those should become one fact before
-	// ownership resolution.
-	//
 	result =
 		dedupe.Result(
 			result,
 		)
 
-	//
-	// All collectors have now contributed their
-	// raw facts and those facts have been
-	// coalesced by semantic value.
 	//
 	// Determine ownership:
 	//
@@ -142,15 +120,24 @@ func Enrich(
 	//
 	// POST-ORGANIZATION DEDUPE.
 	//
-	// Organization may move several copies into
-	// the same semantic destination.
-	//
-	// Run dedupe again to normalize the final
-	// result buckets.
-	//
 	result =
 		dedupe.Result(
 			result,
+		)
+
+	//
+	// Social Circle.
+	//
+	// This stage does NOT perform discovery.
+	//
+	// It inspects only social-post links which
+	// have already been attributed to the root
+	// target or an already-known person.
+	//
+	result.SocialCircle =
+		social.Enrich(
+			result,
+			input,
 		)
 
 	return result,

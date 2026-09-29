@@ -1,4 +1,4 @@
-package searchengines
+package duckduckgo
 
 import (
 	"net/url"

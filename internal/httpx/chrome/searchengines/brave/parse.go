@@ -1,4 +1,4 @@
-package searchengines
+package brave
 
 import (
 	"net/url"
