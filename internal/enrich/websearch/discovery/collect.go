@@ -6,13 +6,20 @@ import (
 	"osint/internal/logger"
 )
 
-func Enrich(
-	result model.EnrichmentResult,
+type Collection struct {
+	Result model.EnrichmentResult
+
+	RankedResults []SearchResult
+
+	RawResults []SearchResult
+
+	Evidence []model.Evidence
+}
+
+func Collect(
 	input model.Input,
 ) (
-	model.EnrichmentResult,
-	[]SearchResult,
-	[]model.Evidence,
+	Collection,
 	error,
 ) {
 	webResult,
@@ -24,17 +31,13 @@ func Enrich(
 
 	if err != nil {
 
-		return result,
-			nil,
-			nil,
+		return Collection{},
 			err
 	}
 
 	if len(rawResults) == 0 {
 
-		return result,
-			nil,
-			nil,
+		return Collection{},
 			nil
 	}
 
@@ -159,68 +162,13 @@ func Enrich(
 		discovered,
 	)
 
-	result.Usernames =
-		append(
-			result.Usernames,
-			discovered.Usernames...,
-		)
+	return Collection{
+		Result: discovered,
 
-	result.Emails =
-		append(
-			result.Emails,
-			discovered.Emails...,
-		)
+		RankedResults: webResult.Results,
 
-	result.Phones =
-		append(
-			result.Phones,
-			discovered.Phones...,
-		)
+		RawResults: rawResults,
 
-	result.Socials =
-		append(
-			result.Socials,
-			discovered.Socials...,
-		)
-
-	result.Links =
-		append(
-			result.Links,
-			discovered.Links...,
-		)
-
-	result.Locations =
-		append(
-			result.Locations,
-			discovered.Locations...,
-		)
-
-	result.Organizations =
-		append(
-			result.Organizations,
-			discovered.Organizations...,
-		)
-
-	result.Employment =
-		append(
-			result.Employment,
-			discovered.Employment...,
-		)
-
-	result.Education =
-		append(
-			result.Education,
-			discovered.Education...,
-		)
-
-	result.People =
-		append(
-			result.People,
-			discovered.People...,
-		)
-
-	return result,
-		rawResults,
-		evidence,
-		nil
+		Evidence: evidence,
+	}, nil
 }
