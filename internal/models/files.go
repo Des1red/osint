@@ -104,3 +104,50 @@ func ChromeProfileDir() (
 		),
 		nil
 }
+
+func ClearChromeProfileLocks() error {
+	profileDirectory,
+		err :=
+		ChromeProfileDir()
+
+	if err != nil {
+		return err
+	}
+
+	lockFiles :=
+		[]string{
+			"SingletonLock",
+			"SingletonCookie",
+			"SingletonSocket",
+		}
+
+	for _, name := range lockFiles {
+
+		path :=
+			filepath.Join(
+				profileDirectory,
+				name,
+			)
+
+		err =
+			os.Remove(
+				path,
+			)
+
+		if err == nil ||
+			os.IsNotExist(
+				err,
+			) {
+
+			continue
+		}
+
+		return fmt.Errorf(
+			"failed to remove chromium profile lock %s: %w",
+			name,
+			err,
+		)
+	}
+
+	return nil
+}
