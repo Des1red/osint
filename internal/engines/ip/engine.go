@@ -14,10 +14,22 @@ func IpEngine() (
 	IPResult,
 	error,
 ) {
+	logger.HeaderStart(
+		"IP Enrichment",
+	)
+
+	defer logger.HeaderEnd(
+		"IP Enrichment",
+	)
+
 	ip :=
 		models.ScopeInput.IpAddress
 
 	var result IPResult
+
+	logger.Info(
+		"Validating IP address...",
+	)
 
 	err :=
 		validate(
@@ -30,11 +42,19 @@ func IpEngine() (
 			err
 	}
 
+	logger.Info(
+		"IP address valid.",
+	)
+
 	//
 	// RDAP failure is not fatal to the IP
 	// engine. Other collectors can still
 	// produce useful information.
 	//
+	logger.Info(
+		"Collecting RDAP information...",
+	)
+
 	rdapResult,
 		err :=
 		rdap.Rdap(
@@ -52,11 +72,19 @@ func IpEngine() (
 
 		result.RDAP =
 			rdapResult
+
+		logger.Info(
+			"RDAP collection complete.",
+		)
 	}
 
 	//
 	// Geolocation.
 	//
+	logger.Info(
+		"Collecting geolocation information...",
+	)
+
 	geoResult,
 		err :=
 		geo.Geo(
@@ -74,11 +102,19 @@ func IpEngine() (
 
 		result.Geo =
 			geoResult
+
+		logger.Info(
+			"Geolocation collection complete.",
+		)
 	}
 
 	//
 	// Network intelligence.
 	//
+	logger.Info(
+		"Collecting network intelligence...",
+	)
+
 	networkResult,
 		err :=
 		network.Network(
@@ -96,11 +132,19 @@ func IpEngine() (
 
 		result.Network =
 			networkResult
+
+		logger.Info(
+			"Network intelligence complete.",
+		)
 	}
 
 	//
 	// Historical intelligence.
 	//
+	logger.Info(
+		"Collecting historical intelligence...",
+	)
+
 	historyResult,
 		err :=
 		history.History(
@@ -118,11 +162,19 @@ func IpEngine() (
 
 		result.History =
 			historyResult
+
+		logger.Info(
+			"Historical intelligence complete.",
+		)
 	}
 
 	//
 	// Reputation.
 	//
+	logger.Info(
+		"Collecting reputation information...",
+	)
+
 	reputationResult,
 		err :=
 		reputation.Reputation(
@@ -140,6 +192,10 @@ func IpEngine() (
 
 		result.Reputation =
 			reputationResult
+
+		logger.Info(
+			"Reputation collection complete.",
+		)
 	}
 
 	return result,

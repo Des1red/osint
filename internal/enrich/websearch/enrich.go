@@ -10,6 +10,7 @@ import (
 	"osint/internal/enrich/websearch/discovery"
 	"osint/internal/enrich/websearch/firsthop"
 	"osint/internal/httpx/chrome"
+	"osint/internal/logger"
 )
 
 func Enrich(
@@ -19,10 +20,22 @@ func Enrich(
 	model.EnrichmentResult,
 	error,
 ) {
+	logger.HeaderStart(
+		"WebSearch Enrichment",
+	)
+
+	defer logger.HeaderEnd(
+		"WebSearch Enrichment",
+	)
+
 	//
 	// One Chromium process for the entire
 	// WebSearch enrichment operation.
 	//
+	logger.Info(
+		"Starting Chromium...",
+	)
+
 	err :=
 		chrome.Open()
 
@@ -34,9 +47,17 @@ func Enrich(
 
 	defer chrome.Close()
 
+	logger.Info(
+		"Chromium ready.",
+	)
+
 	//
 	// Discovery.
 	//
+	logger.Info(
+		"Searching for public information...",
+	)
+
 	result,
 		searchResults,
 		evidence,
@@ -52,9 +73,17 @@ func Enrich(
 			err
 	}
 
+	logger.Info(
+		"Search discovery complete.",
+	)
+
 	//
 	// FirstHop.
 	//
+	logger.Info(
+		"Inspecting discovered pages...",
+	)
+
 	result,
 		firstHopEvidence :=
 		firsthop.Enrich(
@@ -69,9 +98,17 @@ func Enrich(
 			firstHopEvidence,
 		)
 
+	logger.Info(
+		"Page inspection complete.",
+	)
+
 	//
 	// Associated people / relatives.
 	//
+	logger.Info(
+		"Checking associated people...",
+	)
+
 	result,
 		relativeEvidence :=
 		relatives.Enrich(
@@ -84,6 +121,10 @@ func Enrich(
 			evidence,
 			relativeEvidence,
 		)
+
+	logger.Info(
+		"Associated people complete.",
+	)
 
 	//
 	// PRE-ORGANIZATION DEDUPE.
@@ -98,6 +139,10 @@ func Enrich(
 	// Merge those copies before semantic
 	// ownership is resolved.
 	//
+	logger.Info(
+		"Organizing discovered information...",
+	)
+
 	result =
 		dedupe.Result(
 			result,
@@ -125,6 +170,10 @@ func Enrich(
 			result,
 		)
 
+	logger.Info(
+		"Information organization complete.",
+	)
+
 	//
 	// Social Circle.
 	//
@@ -134,11 +183,19 @@ func Enrich(
 	// have already been attributed to the root
 	// target or an already-known person.
 	//
+	logger.Info(
+		"Building social circle...",
+	)
+
 	result.SocialCircle =
 		social.Enrich(
 			result,
 			input,
 		)
+
+	logger.Info(
+		"Social circle complete.",
+	)
 
 	return result,
 		nil

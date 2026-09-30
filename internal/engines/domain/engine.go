@@ -10,6 +10,14 @@ func DomainEngine() (
 	DomainResult,
 	error,
 ) {
+	logger.HeaderStart(
+		"Domain",
+	)
+
+	defer logger.HeaderEnd(
+		"Domain",
+	)
+
 	domain :=
 		normalizeDomain(
 			models.ScopeInput.Domain,
@@ -19,6 +27,10 @@ func DomainEngine() (
 		DomainResult{
 			Domain: domain,
 		}
+
+	logger.Info(
+		"Validating domain...",
+	)
 
 	err :=
 		validate(
@@ -31,11 +43,18 @@ func DomainEngine() (
 			err
 	}
 
+	logger.Info(
+		"Domain valid.",
+	)
+
 	//
 	// Stage 1:
 	//
 	// Root DNS information.
 	//
+	logger.Info(
+		"Looking up DNS addresses...",
+	)
 
 	ipv4,
 		ipv6,
@@ -58,7 +77,15 @@ func DomainEngine() (
 
 		result.AAAA =
 			ipv6
+
+		logger.Info(
+			"DNS address lookup complete.",
+		)
 	}
+
+	logger.Info(
+		"Looking up CNAME records...",
+	)
 
 	cname,
 		err :=
@@ -77,7 +104,15 @@ func DomainEngine() (
 
 		result.CNAME =
 			cname
+
+		logger.Info(
+			"CNAME lookup complete.",
+		)
 	}
+
+	logger.Info(
+		"Looking up MX records...",
+	)
 
 	mx,
 		err :=
@@ -96,7 +131,15 @@ func DomainEngine() (
 
 		result.MX =
 			mx
+
+		logger.Info(
+			"MX lookup complete.",
+		)
 	}
+
+	logger.Info(
+		"Looking up NS records...",
+	)
 
 	ns,
 		err :=
@@ -115,7 +158,15 @@ func DomainEngine() (
 
 		result.NS =
 			ns
+
+		logger.Info(
+			"NS lookup complete.",
+		)
 	}
+
+	logger.Info(
+		"Looking up TXT records...",
+	)
 
 	txt,
 		err :=
@@ -134,6 +185,10 @@ func DomainEngine() (
 
 		result.TXT =
 			txt
+
+		logger.Info(
+			"TXT lookup complete.",
+		)
 	}
 
 	//
@@ -142,6 +197,9 @@ func DomainEngine() (
 	// Passive subdomain discovery through
 	// Certificate Transparency.
 	//
+	logger.Info(
+		"Discovering passive subdomains...",
+	)
 
 	discovery,
 		err :=
@@ -169,16 +227,28 @@ func DomainEngine() (
 				discovery.Names,
 			)
 
+		logger.Info(
+			"Subdomain discovery complete.",
+		)
+
 		//
 		// Stage 3:
 		//
 		// Resolve currently relevant names and
 		// inspect CNAME takeover indicators.
 		//
+		logger.Info(
+			"Resolving discovered subdomains...",
+		)
+
 		result.Subdomains =
 			resolveSubdomains(
 				discovery.Names,
 			)
+
+		logger.Info(
+			"Subdomain resolution complete.",
+		)
 	}
 
 	result.Found =
