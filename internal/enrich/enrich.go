@@ -12,23 +12,44 @@ func Enrich(
 	EnrichmentResult,
 	error,
 ) {
+	logger.HeaderStart(
+		"Enrichment",
+	)
+
+	defer logger.HeaderEnd(
+		"Enrichment",
+	)
+
 	//
 	// Stage 1:
 	//
 	// Extract information from evidence already
 	// supplied by the calling engine.
 	//
+	logger.Info(
+		"Extracting supplied evidence...",
+	)
+
 	result :=
 		extract.Extract(
 			input,
 		)
+
+	logger.Info(
+		"Evidence extraction complete.",
+	)
 
 	//
 	// Stage 2:
 	//
 	// General web discovery.
 	//
-	result, err :=
+	logger.Info(
+		"Starting web discovery...",
+	)
+
+	result,
+		err :=
 		websearch.Enrich(
 			result,
 			input,
@@ -39,6 +60,12 @@ func Enrich(
 		logger.LogError(
 			"Web search enrichment failed",
 			err.Error(),
+		)
+
+	} else {
+
+		logger.Info(
+			"Web discovery complete.",
 		)
 	}
 
