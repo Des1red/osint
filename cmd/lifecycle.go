@@ -23,6 +23,10 @@ func boot() {
 	bootstrap.Boot()
 }
 
+func preboot() func() {
+	return bootstrap.Preboot()
+}
+
 func initiate() {
 	engines.Manager()
 	information.Print()

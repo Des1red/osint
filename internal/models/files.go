@@ -17,6 +17,8 @@ const (
 	AppDirectoryName = ".osint-master"
 
 	ChromeProfileName = "chrome-profile"
+
+	LockFileName = "osint.lock"
 )
 
 func GeoCachePath() (
@@ -28,6 +30,7 @@ func GeoCachePath() (
 		CacheDir()
 
 	if err != nil {
+
 		return "",
 			err
 	}
@@ -48,6 +51,7 @@ func CacheDir() (
 		os.UserCacheDir()
 
 	if err != nil {
+
 		return "",
 			fmt.Errorf(
 				"failed to get user cache directory: %w",
@@ -71,6 +75,7 @@ func AppDir() (
 		os.UserHomeDir()
 
 	if err != nil {
+
 		return "",
 			fmt.Errorf(
 				"failed to get user home directory: %w",
@@ -85,6 +90,27 @@ func AppDir() (
 		nil
 }
 
+func LockFilePath() (
+	string,
+	error,
+) {
+	appDirectory,
+		err :=
+		AppDir()
+
+	if err != nil {
+
+		return "",
+			err
+	}
+
+	return filepath.Join(
+			appDirectory,
+			LockFileName,
+		),
+		nil
+}
+
 func ChromeProfileDir() (
 	string,
 	error,
@@ -94,6 +120,7 @@ func ChromeProfileDir() (
 		AppDir()
 
 	if err != nil {
+
 		return "",
 			err
 	}
@@ -111,6 +138,7 @@ func ClearChromeProfileLocks() error {
 		ChromeProfileDir()
 
 	if err != nil {
+
 		return err
 	}
 

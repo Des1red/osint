@@ -1,7 +1,6 @@
 package bootstrap
 
 import (
-	"fmt"
 	"os"
 
 	"osint/internal/bootstrap/verify"
@@ -29,14 +28,25 @@ func bootflagusage() {
 }
 
 func Boot() {
-	fmt.Println("=============================")
-	fmt.Println("Bootstrap: started")
-	fmt.Println("=============================")
-	fmt.Println()
-	fmt.Println("initializing....")
+	logger.HeaderStart(
+		"Bootstrap",
+	)
+
+	defer logger.HeaderEnd(
+		"Bootstrap",
+	)
+
+	logger.Info(
+		"Initializing...",
+	)
+
 	bootflagusage()
 
 	if models.BootFlags.Install {
+
+		logger.Info(
+			"Installing OSINT...",
+		)
 
 		install()
 
@@ -47,6 +57,10 @@ func Boot() {
 
 	if models.BootFlags.Uninstall {
 
+		logger.Info(
+			"Uninstalling OSINT...",
+		)
+
 		uninstall()
 
 		os.Exit(
@@ -56,32 +70,49 @@ func Boot() {
 
 	if models.BootFlags.Debug {
 
-		fmt.Println(
-			"Debug messages on",
+		logger.Info(
+			"Debug messages enabled.",
 		)
 	}
-	fmt.Println("Verifying dependencies for this run.")
+
+	logger.Info(
+		"Verifying dependencies for this run...",
+	)
+
 	verifyDependencies()
+
+	logger.Info(
+		"Dependencies verified.",
+	)
+
+	logger.Info(
+		"Preparing runtime state...",
+	)
+
 	restoreState()
 
-	fmt.Println()
-	fmt.Println("=============================")
-	fmt.Println("Bootstrap: ended")
-	fmt.Println("=============================")
-	fmt.Println()
+	logger.Info(
+		"Runtime state restored.",
+	)
 }
 
 func restoreState() {
-	err := models.ClearChromeProfileLocks()
-	if err != nil {
-		fmt.Println(
-			"failed to clear chromium profile locks: %w",
-			err,
-		)
-		os.Exit(0)
+	err :=
+		models.ClearChromeProfileLocks()
 
+	if err != nil {
+
+		logger.LogError(
+			"Failed to clear Chromium profile locks",
+			err.Error(),
+		)
+
+		os.Exit(
+			1,
+		)
 	}
 }
+
 func verifyDependencies() {
 	verify.VerifyKeys()
 
