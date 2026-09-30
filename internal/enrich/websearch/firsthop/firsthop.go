@@ -130,10 +130,8 @@ func EnrichSubjects(
 	for _, candidate := range candidates {
 
 		matchedSubjects :=
-			matchingSubjects(
-				searchResultText(
-					candidate,
-				),
+			matchingSearchResultSubjects(
+				candidate,
 				subjects,
 			)
 

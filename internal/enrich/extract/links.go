@@ -572,6 +572,7 @@ func reservedFacebookRoute(
 
 	case "groups",
 		"pages",
+		"public",
 		"events",
 		"marketplace",
 		"watch",

@@ -15,10 +15,23 @@ func ownedProfileFromEvidence(
 	string,
 	bool,
 ) {
+	//
+	// Ownership requires an actual profile URL.
+	//
+	// SocialFromURL is intentionally broader and
+	// may identify the account behind content:
+	//
+	//     /@person/video/123
+	//     /person/status/123
+	//
+	// Such URLs can establish that an account is
+	// related to evidence, but cannot establish
+	// ownership by the investigated person.
+	//
 	platform,
 		username,
 		ok :=
-		extract.SocialFromURL(
+		extract.DirectSocialProfileFromURL(
 			item.URL,
 		)
 
@@ -99,8 +112,8 @@ func ownedProfileFromEvidence(
 	}
 
 	//
-	// Some profile URLs themselves expose the
-	// person's real identity.
+	// Some direct profile URLs themselves expose
+	// the person's real identity.
 	//
 	if identityPresent(
 		urlSearchText(

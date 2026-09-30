@@ -2,6 +2,8 @@ package firsthop
 
 import (
 	"strings"
+
+	identitymatch "osint/internal/enrich/match"
 )
 
 const targetContextRadius = 45
@@ -25,17 +27,6 @@ func targetContext(
 		return ""
 	}
 
-	firstName,
-		lastName,
-		ok :=
-		fullNameTokens(
-			fullName,
-		)
-
-	if !ok {
-		return ""
-	}
-
 	fields :=
 		strings.Fields(
 			text,
@@ -55,7 +46,7 @@ func targetContext(
 
 	for fieldIndex, field := range fields {
 
-		for _, token := range tokenize(
+		for _, token := range identitymatch.Tokens(
 			field,
 		) {
 
@@ -85,20 +76,11 @@ func targetContext(
 		right :=
 			tokens[index+1]
 
-		forward :=
-			left.Value ==
-				firstName &&
-				right.Value ==
-					lastName
-
-		reverse :=
-			left.Value ==
-				lastName &&
-				right.Value ==
-					firstName
-
-		if !forward &&
-			!reverse {
+		if !identitymatch.IdentityPair(
+			fullName,
+			left.Value,
+			right.Value,
+		) {
 
 			continue
 		}

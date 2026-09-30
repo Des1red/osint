@@ -18,8 +18,22 @@ var phoneDigitGroupPattern = regexp.MustCompile(
 	`\d+`,
 )
 
+// Search snippets frequently contain dates or
+// timestamps which also satisfy phonePattern.
+//
+// Examples:
+//
+//	31.03.2026
+//	2026-03-31
+//	07/12/2018 11
+//	07/12/2018 17
+//	07/12/2018 11:30
+//
+// The time component is optional because both
+// plain dates and rendered date/time values must
+// be rejected as phone candidates.
 var dateLikePhonePattern = regexp.MustCompile(
-	`^\d{1,4}\s*[./-]\s*\d{1,2}\s*[./-]\s*\d{1,4}$`,
+	`^\d{1,4}\s*[./-]\s*\d{1,2}\s*[./-]\s*\d{1,4}(?:\s+\d{1,2}(?::\d{2}(?::\d{2})?)?)?$`,
 )
 
 var yearRangePhonePattern = regexp.MustCompile(

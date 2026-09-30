@@ -6,6 +6,8 @@ import (
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
+
+	identitymatch "osint/internal/enrich/match"
 )
 
 type employmentEvidence struct {
@@ -69,26 +71,15 @@ type structuredCollector struct {
 func structuredEvidence(
 	document *goquery.Document,
 	fullName string,
-	pageURL string,
+	_ string,
 ) structuredPageEvidence {
 	if document == nil {
+
 		return structuredPageEvidence{}
 	}
 
 	collector :=
 		newStructuredCollector()
-
-	firstName,
-		lastName,
-		hasIdentity :=
-		fullNameTokens(
-			fullName,
-		)
-
-	allowStandaloneOrganization :=
-		standaloneOrganizationPage(
-			pageURL,
-		)
 
 	document.Find(
 		`script[type="application/ld+json"]`,
@@ -103,6 +94,7 @@ func structuredEvidence(
 				)
 
 			if raw == "" {
+
 				return
 			}
 
@@ -121,10 +113,7 @@ func structuredEvidence(
 
 			walkStructured(
 				value,
-				firstName,
-				lastName,
-				hasIdentity,
-				allowStandaloneOrganization,
+				fullName,
 				collector,
 			)
 		},
@@ -163,10 +152,7 @@ func newStructuredCollector() *structuredCollector {
 
 func walkStructured(
 	value any,
-	firstName string,
-	lastName string,
-	hasIdentity bool,
-	allowStandaloneOrganization bool,
+	fullName string,
 	collector *structuredCollector,
 ) {
 	switch node :=
@@ -178,41 +164,44 @@ func walkStructured(
 
 			walkStructured(
 				child,
-				firstName,
-				lastName,
-				hasIdentity,
-				allowStandaloneOrganization,
+				fullName,
 				collector,
 			)
 		}
 
 	case map[string]any:
 
+		//
+		// Only a Person node matching the
+		// investigation identity may introduce
+		// person-owned structured information.
+		//
+		//
+		// Standalone Organization nodes are not
+		// collected here.
+		//
+		// A news article, for example, commonly
+		// exposes its publisher as:
+		//
+		//     Organization
+		//         G1
+		//
+		// That organization belongs to the page,
+		// not to the person mentioned by the
+		// article.
+		//
 		if schemaType(
 			node["@type"],
 			"Person",
 		) &&
-			hasIdentity &&
-			containsNameTokens(
+			identitymatch.IdentityPresent(
+				fullName,
 				entityName(
 					node,
 				),
-				firstName,
-				lastName,
 			) {
 
 			collectPersonNode(
-				node,
-				collector,
-			)
-		}
-
-		if allowStandaloneOrganization &&
-			organizationType(
-				node["@type"],
-			) {
-
-			collectOrganizationNode(
 				node,
 				collector,
 			)
@@ -222,10 +211,7 @@ func walkStructured(
 
 			walkStructured(
 				child,
-				firstName,
-				lastName,
-				hasIdentity,
-				allowStandaloneOrganization,
+				fullName,
 				collector,
 			)
 		}
@@ -271,6 +257,11 @@ func collectPersonNode(
 			collector.result.Employment,
 		)
 
+	//
+	// Organizations reached through worksFor
+	// are explicitly associated with the matched
+	// Person node.
+	//
 	collectEmploymentValue(
 		node["worksFor"],
 		jobTitle,
@@ -289,6 +280,10 @@ func collectPersonNode(
 		)
 	}
 
+	//
+	// These relationships also explicitly tie
+	// organizations to the matched Person.
+	//
 	collectOrganizationRelationship(
 		node["affiliation"],
 		collector,
@@ -315,6 +310,7 @@ func collectOrganizationNode(
 		)
 
 	if name != "" {
+
 		collector.addOrganization(
 			name,
 		)
@@ -456,6 +452,7 @@ func collectEmploymentValue(
 			)
 
 		if organization == "" {
+
 			return
 		}
 
@@ -499,6 +496,7 @@ func collectEmploymentValue(
 				)
 
 			if title == "" {
+
 				title =
 					defaultTitle
 			}
@@ -574,6 +572,11 @@ func collectEmploymentValue(
 			return
 		}
 
+		//
+		// This Organization node is safe to
+		// collect because it was reached through
+		// the matched Person's worksFor field.
+		//
 		if organizationType(
 			node["@type"],
 		) {
@@ -590,6 +593,7 @@ func collectEmploymentValue(
 			)
 
 		if organization == "" {
+
 			return
 		}
 
@@ -640,6 +644,7 @@ func collectEducationValue(
 			)
 
 		if school == "" {
+
 			return
 		}
 
@@ -705,6 +710,7 @@ func collectEducationValue(
 			)
 
 		if school == "" {
+
 			return
 		}
 
@@ -747,6 +753,7 @@ func collectAddress(
 					)
 
 				if value == "" {
+
 					return
 				}
 
@@ -939,6 +946,7 @@ func entityName(
 	node map[string]any,
 ) string {
 	if node == nil {
+
 		return ""
 	}
 
@@ -948,6 +956,7 @@ func entityName(
 		)
 
 	if name != "" {
+
 		return name
 	}
 
@@ -1086,6 +1095,7 @@ func firstTextValue(
 		)
 
 	if len(values) == 0 {
+
 		return ""
 	}
 
@@ -1114,66 +1124,6 @@ func countryValue(
 	return ""
 }
 
-func standaloneOrganizationPage(
-	value string,
-) bool {
-	parsed, err :=
-		url.Parse(
-			value,
-		)
-
-	if err != nil {
-		return false
-	}
-
-	host :=
-		strings.ToLower(
-			strings.TrimSpace(
-				parsed.Hostname(),
-			),
-		)
-
-	host =
-		strings.TrimPrefix(
-			host,
-			"www.",
-		)
-
-	host =
-		strings.TrimPrefix(
-			host,
-			"m.",
-		)
-
-	blocked :=
-		[]string{
-			"instagram.com",
-			"facebook.com",
-			"linkedin.com",
-			"twitter.com",
-			"x.com",
-			"tiktok.com",
-			"reddit.com",
-			"github.com",
-			"gitlab.com",
-			"youtube.com",
-		}
-
-	for _, domain := range blocked {
-
-		if host == domain ||
-			strings.HasSuffix(
-				host,
-				"."+domain,
-			) {
-
-			return false
-		}
-	}
-
-	return true
-}
-
 func (
 	collector *structuredCollector,
 ) addReference(
@@ -1185,6 +1135,7 @@ func (
 		)
 
 	if value == "" {
+
 		return
 	}
 
@@ -1237,6 +1188,7 @@ func (
 		)
 
 	if value == "" {
+
 		return
 	}
 
@@ -1272,6 +1224,7 @@ func (
 		)
 
 	if value == "" {
+
 		return
 	}
 
@@ -1281,6 +1234,7 @@ func (
 		)
 
 	if err != nil {
+
 		return
 	}
 
@@ -1296,6 +1250,7 @@ func (
 	}
 
 	if parsed.Hostname() == "" {
+
 		return
 	}
 
@@ -1337,6 +1292,7 @@ func (
 		)
 
 	if value == "" {
+
 		return
 	}
 
@@ -1372,6 +1328,7 @@ func (
 		)
 
 	if value == "" {
+
 		return
 	}
 
@@ -1455,6 +1412,7 @@ func (
 		)
 
 	if value.School == "" {
+
 		return
 	}
 
@@ -1501,6 +1459,7 @@ func uniqueStructuredStrings(
 			)
 
 		if value == "" {
+
 			continue
 		}
 

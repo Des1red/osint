@@ -89,14 +89,18 @@ func validPhoneCandidate(
 	}
 
 	//
-	// Search snippets commonly contain dates
-	// and year ranges that satisfy the loose
-	// phone-number character pattern.
+	// Search snippets commonly contain dates,
+	// timestamps and year ranges which satisfy
+	// the intentionally loose phone-number
+	// character pattern.
 	//
 	// Examples:
 	//
 	// 31.03.2026
 	// 2026-03-31
+	// 07/12/2018 11
+	// 07/12/2018 17
+	// 07/12/2018 11:30
 	// 2003 - 2004
 	//
 	if dateLikePhonePattern.MatchString(
@@ -203,9 +207,8 @@ func uniquePhones(
 		// same phone + same source
 		// = same extracted fact.
 		//
-		//  repeated
-		// occurrences merge their provenance
-		// instead of losing it.
+		// Repeated occurrences merge their
+		// provenance instead of losing it.
 		//
 		key :=
 			digits +

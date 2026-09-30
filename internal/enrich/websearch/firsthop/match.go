@@ -2,8 +2,8 @@ package firsthop
 
 import (
 	"strings"
-	"unicode"
 
+	identitymatch "osint/internal/enrich/match"
 	"osint/internal/enrich/model"
 	"osint/internal/enrich/websearch/discovery"
 )
@@ -32,10 +32,8 @@ func matchingSubjectResults(
 	for _, value := range values {
 
 		if len(
-			matchingSubjects(
-				searchResultText(
-					value,
-				),
+			matchingSearchResultSubjects(
+				value,
 				subjects,
 			),
 		) == 0 {
@@ -77,9 +75,21 @@ func matchingSubjectResults(
 	return result
 }
 
-func matchingSubjects(
-	value string,
+func matchingSearchResultSubjects(
+	value discovery.SearchResult,
 	subjects []model.EvidenceSubject,
+) []model.EvidenceSubject {
+	return matchingSubjects(
+		subjects,
+		value.Title,
+		value.Snippet,
+		value.URL,
+	)
+}
+
+func matchingSubjects(
+	subjects []model.EvidenceSubject,
+	values ...string,
 ) []model.EvidenceSubject {
 	subjects =
 		normalizeFirstHopSubjects(
@@ -96,22 +106,9 @@ func matchingSubjects(
 			continue
 		}
 
-		firstName,
-			lastName,
-			ok :=
-			fullNameTokens(
-				subject.Value,
-			)
-
-		if !ok {
-
-			continue
-		}
-
-		if !containsNameTokens(
-			value,
-			firstName,
-			lastName,
+		if !identitymatch.IdentityPresent(
+			subject.Value,
+			values...,
 		) {
 
 			continue
@@ -125,18 +122,6 @@ func matchingSubjects(
 	}
 
 	return result
-}
-
-func searchResultText(
-	value discovery.SearchResult,
-) string {
-	return strings.TrimSpace(
-		value.Title +
-			" " +
-			value.Snippet +
-			" " +
-			value.URL,
-	)
 }
 
 func normalizeFirstHopSubjects(
@@ -193,117 +178,4 @@ func normalizeFirstHopSubjects(
 	}
 
 	return result
-}
-
-func fullNameTokens(
-	fullName string,
-) (
-	string,
-	string,
-	bool,
-) {
-	parts :=
-		tokenize(
-			fullName,
-		)
-
-	if len(parts) < 2 {
-
-		return "",
-			"",
-			false
-	}
-
-	firstName :=
-		parts[0]
-
-	lastName :=
-		parts[len(parts)-1]
-
-	if firstName == "" ||
-		lastName == "" {
-
-		return "",
-			"",
-			false
-	}
-
-	return firstName,
-		lastName,
-		true
-}
-
-func containsNameTokens(
-	value string,
-	firstName string,
-	lastName string,
-) bool {
-	tokens :=
-		tokenize(
-			value,
-		)
-
-	foundFirst :=
-		false
-
-	foundLast :=
-		false
-
-	for _, token := range tokens {
-
-		if token ==
-			firstName {
-
-			foundFirst =
-				true
-		}
-
-		if token ==
-			lastName {
-
-			foundLast =
-				true
-		}
-
-		if foundFirst &&
-			foundLast {
-
-			return true
-		}
-	}
-
-	return false
-}
-
-func tokenize(
-	value string,
-) []string {
-	var builder strings.Builder
-
-	for _, character := range strings.ToLower(
-		value,
-	) {
-
-		if unicode.IsLetter(
-			character,
-		) ||
-			unicode.IsNumber(
-				character,
-			) {
-
-			builder.WriteRune(
-				character,
-			)
-
-			continue
-		}
-
-		builder.WriteRune(
-			' ',
-		)
-	}
-
-	return strings.Fields(
-		builder.String(),
-	)
 }
