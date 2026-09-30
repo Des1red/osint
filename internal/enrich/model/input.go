@@ -88,6 +88,7 @@ type EducationInput struct {
 
 type Input struct {
 	FullName string
+	Surname  string
 
 	RootUsername string
 

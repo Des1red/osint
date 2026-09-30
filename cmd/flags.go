@@ -17,6 +17,13 @@ func flags() {
 		"search information by full name",
 	)
 
+	pflag.IntVar(
+		&models.ScopeInput.SurnamePosition,
+		"surname-position",
+		0,
+		"position of surname in full name: 1 = first, 2 = last",
+	)
+
 	pflag.StringVarP(
 		&models.ScopeInput.IpAddress,
 		"ip",

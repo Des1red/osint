@@ -32,6 +32,28 @@ func printProfessional(
 			)
 	}
 
+	if len(
+		result.UnattributedOrganizations,
+	) > 0 {
+
+		sections =
+			append(
+				sections,
+				treeSection{
+					Title: "Unattributed Organizations",
+
+					Print: func(
+						prefix string,
+					) {
+						printOrganizations(
+							prefix,
+							result.UnattributedOrganizations,
+						)
+					},
+				},
+			)
+	}
+
 	if len(result.Employment) > 0 {
 
 		sections =
@@ -52,6 +74,28 @@ func printProfessional(
 			)
 	}
 
+	if len(
+		result.UnattributedEmployment,
+	) > 0 {
+
+		sections =
+			append(
+				sections,
+				treeSection{
+					Title: "Unattributed Employment",
+
+					Print: func(
+						prefix string,
+					) {
+						printEmployment(
+							prefix,
+							result.UnattributedEmployment,
+						)
+					},
+				},
+			)
+	}
+
 	if len(result.Education) > 0 {
 
 		sections =
@@ -66,6 +110,28 @@ func printProfessional(
 						printEducation(
 							prefix,
 							result.Education,
+						)
+					},
+				},
+			)
+	}
+
+	if len(
+		result.UnattributedEducation,
+	) > 0 {
+
+		sections =
+			append(
+				sections,
+				treeSection{
+					Title: "Unattributed Education",
+
+					Print: func(
+						prefix string,
+					) {
+						printEducation(
+							prefix,
+							result.UnattributedEducation,
 						)
 					},
 				},
@@ -95,22 +161,19 @@ func printOrganizations(
 			organization.Organization,
 		)
 
-		if !output.Full() {
-			continue
-		}
+		fields :=
+			appendProvenanceFields(
+				nil,
+				organization.Source,
+				organization.Evidence,
+			)
 
 		output.TreeFields(
 			output.TreeChildPrefix(
 				prefix,
 				last,
 			),
-			[]output.TreeField{
-				{
-					Name: "Discovered From",
-
-					Value: organization.Source,
-				},
-			},
+			fields,
 		)
 	}
 }
@@ -131,6 +194,7 @@ func printEmployment(
 			)
 
 		if title == "" {
+
 			title =
 				"Employment"
 		}
@@ -142,23 +206,52 @@ func printEmployment(
 		)
 
 		fields :=
-			[]output.TreeField{
-				{
-					Name: "Organization",
+			[]output.TreeField{}
 
-					Value: job.Organization,
-				},
-				{
-					Name: "Start Date",
+		if strings.TrimSpace(
+			job.Organization,
+		) != "" {
 
-					Value: job.StartDate,
-				},
-				{
-					Name: "End Date",
+			fields =
+				append(
+					fields,
+					output.TreeField{
+						Name: "Organization",
 
-					Value: job.EndDate,
-				},
-			}
+						Value: job.Organization,
+					},
+				)
+		}
+
+		if strings.TrimSpace(
+			job.StartDate,
+		) != "" {
+
+			fields =
+				append(
+					fields,
+					output.TreeField{
+						Name: "Start Date",
+
+						Value: job.StartDate,
+					},
+				)
+		}
+
+		if strings.TrimSpace(
+			job.EndDate,
+		) != "" {
+
+			fields =
+				append(
+					fields,
+					output.TreeField{
+						Name: "End Date",
+
+						Value: job.EndDate,
+					},
+				)
+		}
 
 		if job.Current {
 
@@ -173,28 +266,27 @@ func printEmployment(
 				)
 		}
 
-		fields =
-			append(
-				fields,
-				output.TreeField{
-					Name: "Summary",
-
-					Value: job.Summary,
-				},
-			)
-
-		if output.Full() {
+		if strings.TrimSpace(
+			job.Summary,
+		) != "" {
 
 			fields =
 				append(
 					fields,
 					output.TreeField{
-						Name: "Discovered From",
+						Name: "Summary",
 
-						Value: job.Source,
+						Value: job.Summary,
 					},
 				)
 		}
+
+		fields =
+			appendProvenanceFields(
+				fields,
+				job.Source,
+				job.Evidence,
+			)
 
 		output.TreeFields(
 			output.TreeChildPrefix(
@@ -222,6 +314,7 @@ func printEducation(
 			)
 
 		if name == "" {
+
 			name =
 				"Education"
 		}
@@ -233,52 +326,101 @@ func printEducation(
 		)
 
 		fields :=
-			[]output.TreeField{
-				{
-					Name: "Degrees",
+			[]output.TreeField{}
 
-					Value: strings.Join(
-						school.Degrees,
-						", ",
-					),
-				},
-				{
-					Name: "Majors",
+		degrees :=
+			strings.Join(
+				school.Degrees,
+				", ",
+			)
 
-					Value: strings.Join(
-						school.Majors,
-						", ",
-					),
-				},
-				{
-					Name: "Start Date",
-
-					Value: school.StartDate,
-				},
-				{
-					Name: "End Date",
-
-					Value: school.EndDate,
-				},
-				{
-					Name: "Summary",
-
-					Value: school.Summary,
-				},
-			}
-
-		if output.Full() {
+		if strings.TrimSpace(
+			degrees,
+		) != "" {
 
 			fields =
 				append(
 					fields,
 					output.TreeField{
-						Name: "Discovered From",
+						Name: "Degrees",
 
-						Value: school.Source,
+						Value: degrees,
 					},
 				)
 		}
+
+		majors :=
+			strings.Join(
+				school.Majors,
+				", ",
+			)
+
+		if strings.TrimSpace(
+			majors,
+		) != "" {
+
+			fields =
+				append(
+					fields,
+					output.TreeField{
+						Name: "Majors",
+
+						Value: majors,
+					},
+				)
+		}
+
+		if strings.TrimSpace(
+			school.StartDate,
+		) != "" {
+
+			fields =
+				append(
+					fields,
+					output.TreeField{
+						Name: "Start Date",
+
+						Value: school.StartDate,
+					},
+				)
+		}
+
+		if strings.TrimSpace(
+			school.EndDate,
+		) != "" {
+
+			fields =
+				append(
+					fields,
+					output.TreeField{
+						Name: "End Date",
+
+						Value: school.EndDate,
+					},
+				)
+		}
+
+		if strings.TrimSpace(
+			school.Summary,
+		) != "" {
+
+			fields =
+				append(
+					fields,
+					output.TreeField{
+						Name: "Summary",
+
+						Value: school.Summary,
+					},
+				)
+		}
+
+		fields =
+			appendProvenanceFields(
+				fields,
+				school.Source,
+				school.Evidence,
+			)
 
 		output.TreeFields(
 			output.TreeChildPrefix(

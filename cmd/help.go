@@ -26,6 +26,11 @@ func help() {
 			"search information by full name",
 		),
 		clihelp.F(
+			"--surname-position",
+			`"1|2"`,
+			"position of surname in full name: 1 = first, 2 = last (default 2)",
+		),
+		clihelp.F(
 			"-i, --ip",
 			`"IP Address"`,
 			"search information by IP address",

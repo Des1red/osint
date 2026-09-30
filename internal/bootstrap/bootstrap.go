@@ -92,7 +92,7 @@ func Boot() {
 	restoreState()
 
 	logger.Info(
-		"Runtime state restored.",
+		"Runtime state prepared.",
 	)
 }
 

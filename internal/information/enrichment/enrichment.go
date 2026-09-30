@@ -55,6 +55,10 @@ func Print(
 		result,
 	)
 
+	printDirectories(
+		result.Directories,
+	)
+
 	return true
 }
 
@@ -82,5 +86,6 @@ func hasData(
 		len(result.Education) > 0 ||
 		len(result.UnattributedEducation) > 0 ||
 		len(result.People) > 0 ||
-		len(result.SocialCircle.Connections) > 0
+		len(result.SocialCircle.Connections) > 0 ||
+		len(result.Directories) > 0
 }

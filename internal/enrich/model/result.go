@@ -59,4 +59,14 @@ type EnrichmentResult struct {
 	// Explicit public social-post associations.
 	//
 	SocialCircle SocialCircle
+
+	//
+	// Results returned by public directory
+	// providers.
+	//
+	//
+	// These remain separate from attributed and
+	// unattributed enrichment facts.
+	//
+	Directories []DirectoryResult
 }

@@ -41,3 +41,9 @@ type RelativeSearchResult = model.RelativeSearchResult
 type EnrichmentResult = model.EnrichmentResult
 
 type RelatedAccountReference = model.RelatedAccountReference
+
+type DirectoryResult = model.DirectoryResult
+
+type DirectoryEntry = model.DirectoryEntry
+
+type DirectoryField = model.DirectoryField

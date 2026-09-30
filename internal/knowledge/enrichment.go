@@ -33,3 +33,13 @@ type PersonReference = enrich.PersonReference
 type RelativeSearchResult = enrich.RelativeSearchResult
 
 type RelatedAccountReference = enrich.RelatedAccountReference
+
+//
+// Directory results.
+//
+
+type DirectoryResult = enrich.DirectoryResult
+
+type DirectoryEntry = enrich.DirectoryEntry
+
+type DirectoryField = enrich.DirectoryField

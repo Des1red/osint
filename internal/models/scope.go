@@ -3,6 +3,9 @@ package models
 type Scope struct {
 	FullName string
 
+	Surname         string
+	SurnamePosition int
+
 	IpAddress string
 
 	Username string

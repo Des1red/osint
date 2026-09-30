@@ -46,6 +46,39 @@ func FullNameEngine() (
 	)
 
 	//
+	// Resolve surname from the user-specified
+	// name order.
+	//
+	if models.ScopeInput.SurnamePosition == 0 {
+
+		logger.Info(
+			"Surname position not specified. Surname-based enrichment will be skipped.",
+		)
+
+	} else {
+
+		logger.Info(
+			"Resolving surname...",
+		)
+
+		err =
+			resolveSurname(
+				fullName,
+				models.ScopeInput.SurnamePosition,
+			)
+
+		if err != nil {
+
+			return result,
+				err
+		}
+
+		logger.Info(
+			"Surname resolved.",
+		)
+	}
+
+	//
 	// Stage 1:
 	//
 	// Generate full-name lookup candidates.

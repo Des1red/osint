@@ -16,7 +16,7 @@ type Collection struct {
 	Evidence []model.Evidence
 }
 
-func Collect(
+func collect(
 	input model.Input,
 ) (
 	Collection,

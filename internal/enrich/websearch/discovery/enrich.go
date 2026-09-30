@@ -12,7 +12,7 @@ func Enrich(
 	error,
 ) {
 	collection, err :=
-		Collect(
+		collect(
 			input,
 		)
 

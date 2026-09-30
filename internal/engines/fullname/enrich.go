@@ -3,6 +3,7 @@ package fullname
 import (
 	"osint/internal/enrich"
 	"osint/internal/logger"
+	"osint/internal/models"
 )
 
 func enrichFullName(
@@ -12,6 +13,8 @@ func enrichFullName(
 	input :=
 		enrich.Input{
 			FullName: fullName,
+
+			Surname: models.ScopeInput.Surname,
 
 			Accounts: make(
 				[]enrich.AccountInput,
