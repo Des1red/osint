@@ -76,7 +76,7 @@ func toDirectoryResult(
 ) model.DirectoryResult {
 	result :=
 		model.DirectoryResult{
-			Provider: "11880",
+			Provider: "Greece",
 
 			Query: value.Query,
 

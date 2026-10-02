@@ -29,6 +29,7 @@ func Run() {
 	checkflags()
 
 	boot()
+	defer cleanup()
 
 	initiate()
 }

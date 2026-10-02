@@ -19,6 +19,8 @@ const (
 	ChromeProfileName = "chrome-profile"
 
 	LockFileName = "osint.lock"
+
+	XvfbStateName = "xvfb-state.json"
 )
 
 func GeoCachePath() (
@@ -178,4 +180,25 @@ func ClearChromeProfileLocks() error {
 	}
 
 	return nil
+}
+
+func XvfbStatePath() (
+	string,
+	error,
+) {
+	appDirectory,
+		err :=
+		AppDir()
+
+	if err != nil {
+
+		return "",
+			err
+	}
+
+	return filepath.Join(
+			appDirectory,
+			XvfbStateName,
+		),
+		nil
 }

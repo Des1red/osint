@@ -8,12 +8,20 @@ import (
 	"osint/internal/models"
 )
 
+var browserCandidates = []string{
+	"google-chrome",
+	"google-chrome-stable",
+	"chromium",
+	"chromium-browser",
+}
+
 func VerifyBrowser() error {
 	executable,
 		err :=
-		chromeExecutable()
+		BrowserExecutable()
 
 	if err != nil {
+
 		return err
 	}
 
@@ -22,6 +30,7 @@ func VerifyBrowser() error {
 		models.ChromeProfileDir()
 
 	if err != nil {
+
 		return fmt.Errorf(
 			"resolve Chrome profile directory: %w",
 			err,
@@ -35,6 +44,7 @@ func VerifyBrowser() error {
 		)
 
 	if err != nil {
+
 		return fmt.Errorf(
 			"create Chrome profile directory: %w",
 			err,
@@ -50,19 +60,11 @@ func VerifyBrowser() error {
 	return nil
 }
 
-func chromeExecutable() (
+func BrowserExecutable() (
 	string,
 	error,
 ) {
-	candidates :=
-		[]string{
-			"google-chrome",
-			"google-chrome-stable",
-			"chromium",
-			"chromium-browser",
-		}
-
-	for _, candidate := range candidates {
+	for _, candidate := range browserCandidates {
 
 		path,
 			err :=
@@ -71,6 +73,7 @@ func chromeExecutable() (
 			)
 
 		if err == nil {
+
 			return path,
 				nil
 		}

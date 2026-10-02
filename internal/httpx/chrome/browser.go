@@ -3,9 +3,11 @@ package chrome
 import (
 	"context"
 	"fmt"
+	"os"
 	"strings"
 	"sync"
 
+	"osint/internal/logger"
 	"osint/internal/models"
 
 	"github.com/chromedp/chromedp"
@@ -206,6 +208,11 @@ func newBrowser() (
 			),
 
 			chromedp.Flag(
+				"ozone-platform",
+				"x11",
+			),
+
+			chromedp.Flag(
 				"disable-blink-features",
 				"AutomationControlled",
 			),
@@ -224,6 +231,17 @@ func newBrowser() (
 			allocatorContext,
 		)
 
+	logger.Debug(
+		"Chromium Environment",
+		"Executable",
+		executable,
+		"Profile",
+		profileDirectory,
+		"DISPLAY",
+		os.Getenv(
+			"DISPLAY",
+		),
+	)
 	//
 	// Force Chromium to start once here.
 	//
