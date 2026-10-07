@@ -1,5 +1,7 @@
 github.com/Des1red/clihelp v1.0.2 h1:3jE0u7B8y5oGdrUDfj6Vfa4tpmmwFUmSdMMae3ZWloY=
 github.com/Des1red/clihelp v1.0.2/go.mod h1:4sMd2I5rpd6Sqb/o9EC4P37OajqkQeZMzxGZ2TIPaTg=
+github.com/Des1red/goinstall v0.0.0-20261007174718-294c4b350a05 h1:i8rrHbVXaelv19+K/kfuvpCNw0V8kJXkhwrow2jVorc=
+github.com/Des1red/goinstall v0.0.0-20261007174718-294c4b350a05/go.mod h1:OJZB4fBTCFol58fG6nrivVbQda5E+OcqDEWOJ1HPCds=
 github.com/PuerkitoBio/goquery v1.13.0 h1:mqHbjD7Jmnul4DTR24LKTjo1uUmHUh072kteGV+xpFM=
 github.com/PuerkitoBio/goquery v1.13.0/go.mod h1:Hip5mdBL8K2wEGKJdr27sRaNwIdDajmCwB/ExUPwW+g=
 github.com/andybalholm/cascadia v1.3.4 h1:vM2lgh0Vru9Vwyfm4cQqWP2HHMW0u0+2PAW7Q38Qufg=

@@ -4,24 +4,20 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"os/exec"
 	"strings"
+
+	instll "github.com/Des1red/goinstall/cmd"
 
 	"osint/internal/bootstrap/installation/dependencies"
 	"osint/internal/bootstrap/installation/privilege"
 	"osint/internal/models"
 )
 
-const installPath = models.InstallPath
-
-const binName = models.BinName
-
 func Install() error {
 	err :=
 		privilege.EnsureUserInvocation()
 
 	if err != nil {
-
 		return err
 	}
 
@@ -30,7 +26,6 @@ func Install() error {
 		confirmDependencyInstallation()
 
 	if err != nil {
-
 		return fmt.Errorf(
 			"dependency confirmation failed: %w",
 			err,
@@ -38,20 +33,16 @@ func Install() error {
 	}
 
 	if installDependencies {
-
 		err =
 			dependencies.Install()
 
 		if err != nil {
-
 			return fmt.Errorf(
 				"install dependencies: %w",
 				err,
 			)
 		}
-
 	} else {
-
 		fmt.Println(
 			"dependency installation skipped",
 		)
@@ -62,97 +53,26 @@ func Install() error {
 	}
 
 	err =
-		installBinary()
+		instll.SetBinaryName(
+			models.BinName,
+		)
 
 	if err != nil {
-
 		return fmt.Errorf(
-			"install binary: %w",
+			"set binary name: %w",
 			err,
 		)
 	}
-
-	return nil
-}
-
-func installBinary() error {
-	cmd :=
-		exec.Command(
-			"go",
-			"build",
-			"-o",
-			binName,
-			".",
-		)
-
-	cmd.Stdout =
-		os.Stdout
-
-	cmd.Stderr =
-		os.Stderr
-
-	err :=
-		cmd.Run()
-
-	if err != nil {
-
-		return fmt.Errorf(
-			"build failed: %w",
-			err,
-		)
-	}
-
-	defer func() {
-
-		err :=
-			os.Remove(
-				binName,
-			)
-
-		if err != nil &&
-			!os.IsNotExist(
-				err,
-			) {
-
-			fmt.Println(
-				"warning: could not remove temporary binary:",
-				err,
-			)
-		}
-	}()
-
-	command,
-		err :=
-		privilege.Command(
-			"install",
-			"-m",
-			"0755",
-			binName,
-			installPath,
-		)
-
-	if err != nil {
-
-		return err
-	}
-
-	command.Stdout =
-		os.Stdout
-
-	command.Stderr =
-		os.Stderr
-
-	command.Stdin =
-		os.Stdin
 
 	err =
-		command.Run()
+		instll.Install(
+			true,
+			false,
+		)
 
 	if err != nil {
-
 		return fmt.Errorf(
-			"install binary to %s: %w",
-			installPath,
+			"install binary: %w",
 			err,
 		)
 	}
@@ -170,7 +90,6 @@ func confirmDependencyInstallation() (
 		)
 
 	for {
-
 		fmt.Print(
 			"Install missing system dependencies? [Y/n]: ",
 		)
@@ -182,7 +101,6 @@ func confirmDependencyInstallation() (
 			)
 
 		if err != nil {
-
 			return false,
 				err
 		}

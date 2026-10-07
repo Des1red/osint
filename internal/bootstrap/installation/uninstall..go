@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 
+	instll "github.com/Des1red/goinstall/cmd"
+
 	"osint/internal/bootstrap/installation/dependencies"
 	"osint/internal/bootstrap/installation/privilege"
 	"osint/internal/models"
@@ -14,7 +16,6 @@ func Uninstall() error {
 		privilege.EnsureUserInvocation()
 
 	if err != nil {
-
 		return err
 	}
 
@@ -27,7 +28,6 @@ func Uninstall() error {
 		dependencies.Uninstall()
 
 	if err != nil {
-
 		return fmt.Errorf(
 			"uninstall dependencies: %w",
 			err,
@@ -35,11 +35,28 @@ func Uninstall() error {
 	}
 
 	err =
-		removeBinary()
+		instll.SetBinaryName(
+			models.BinName,
+		)
 
 	if err != nil {
+		return fmt.Errorf(
+			"set binary name: %w",
+			err,
+		)
+	}
 
-		return err
+	err =
+		instll.Uninstall(
+			true,
+			false,
+		)
+
+	if err != nil {
+		return fmt.Errorf(
+			"remove binary: %w",
+			err,
+		)
 	}
 
 	cacheDir,
@@ -47,7 +64,6 @@ func Uninstall() error {
 		removeCache()
 
 	if err != nil {
-
 		return err
 	}
 
@@ -56,7 +72,6 @@ func Uninstall() error {
 		removeApplicationData()
 
 	if err != nil {
-
 		return err
 	}
 
@@ -78,44 +93,6 @@ func Uninstall() error {
 	return nil
 }
 
-func removeBinary() error {
-	command,
-		err :=
-		privilege.Command(
-			"rm",
-			"-f",
-			models.InstallPath,
-		)
-
-	if err != nil {
-
-		return err
-	}
-
-	command.Stdout =
-		os.Stdout
-
-	command.Stderr =
-		os.Stderr
-
-	command.Stdin =
-		os.Stdin
-
-	err =
-		command.Run()
-
-	if err != nil {
-
-		return fmt.Errorf(
-			"remove binary %s: %w",
-			models.InstallPath,
-			err,
-		)
-	}
-
-	return nil
-}
-
 func removeCache() (
 	string,
 	error,
@@ -125,7 +102,6 @@ func removeCache() (
 		models.CacheDir()
 
 	if err != nil {
-
 		return "",
 			fmt.Errorf(
 				"resolve cache directory: %w",
@@ -139,7 +115,6 @@ func removeCache() (
 		)
 
 	if err != nil {
-
 		return "",
 			fmt.Errorf(
 				"remove cache: %w",
@@ -160,7 +135,6 @@ func removeApplicationData() (
 		models.AppDir()
 
 	if err != nil {
-
 		return "",
 			fmt.Errorf(
 				"resolve application directory: %w",
@@ -174,7 +148,6 @@ func removeApplicationData() (
 		)
 
 	if err != nil {
-
 		return "",
 			fmt.Errorf(
 				"remove application data: %w",
